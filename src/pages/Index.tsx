@@ -128,7 +128,10 @@ const Index = () => {
                   Generated Schedules
                 </h2>
                 <p className="text-xl text-muted-foreground">
-                  Conflict-free timetables for both divisions
+                  {scheduleType === 'sports' 
+                    ? 'Conflict-free sports event schedules'
+                    : 'Conflict-free timetables for both divisions'
+                  }
                 </p>
               </div>
 
@@ -139,8 +142,20 @@ const Index = () => {
                 </TabsList>
 
                 <TabsContent value="timetables" className="space-y-8">
-                  <TimetableView division="Division 1" timetable={scheduleResult.div1} />
-                  <TimetableView division="Division 2" timetable={scheduleResult.div2} />
+                  {scheduleType === 'sports' ? (
+                    // Combined sports timetable
+                    <TimetableView 
+                      division="Inter-Department Tournament" 
+                      timetable={scheduleResult.div1}
+                      scheduleType={scheduleType}
+                    />
+                  ) : (
+                    // Division-wise timetables for academic/exam/cultural
+                    <>
+                      <TimetableView division="Division 1" timetable={scheduleResult.div1} scheduleType={scheduleType} />
+                      <TimetableView division="Division 2" timetable={scheduleResult.div2} scheduleType={scheduleType} />
+                    </>
+                  )}
                 </TabsContent>
 
                 <TabsContent value="algorithm">

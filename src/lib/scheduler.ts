@@ -42,12 +42,18 @@ export const DAY_NAMES = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'
 
 export type Timetable = Slot[][];
 
+export interface SportSchedule {
+  sportName: string;
+  timetable: Timetable;
+}
+
 export interface ScheduleResult {
   div1: Timetable;
   div2: Timetable;
   conflictGraph: GraphNode[];
   conflictEdges: ConflictEdge[];
   steps: AlgorithmStep[];
+  sportsSchedules?: SportSchedule[];
 }
 
 export interface AlgorithmStep {
@@ -181,6 +187,12 @@ export function buildConflictGraph(courses: Course[]): { nodes: GraphNode[], edg
 
 // Graph coloring algorithm (assign time slots as colors)
 function graphColoringSchedule(courses: Course[], maxColors: number = DAYS * HOURS): ScheduleResult {
+  // Check if this is a sports schedule
+  const isSportsSchedule = courses.length > 0 && courses[0].type === 'sports';
+  
+  if (isSportsSchedule) {
+    return generateSportsSchedule(courses);
+  }
   const steps: AlgorithmStep[] = [];
   const { nodes, edges } = buildConflictGraph(courses);
   
@@ -328,6 +340,119 @@ function graphColoringSchedule(courses: Course[], maxColors: number = DAYS * HOU
   });
 
   return { div1, div2, conflictGraph: nodes, conflictEdges: edges, steps };
+}
+
+// Generate combined sports schedule
+function generateSportsSchedule(courses: Course[]): ScheduleResult {
+  const steps: AlgorithmStep[] = [];
+  const { nodes, edges } = buildConflictGraph(courses);
+  
+  // Create one combined timetable for all sports
+  const combinedTimetable: Timetable = Array(DAYS).fill(null).map(() => 
+    Array(HOURS).fill(null).map(() => ({ subject: '', faculty: '', isLab: false }))
+  );
+  
+  // Sort courses by priority (Group=1, Semi=2, Final=3)
+  const sortedCourses = [...courses].sort((a, b) => a.priority - b.priority);
+  
+  let stepCount = 0;
+  
+  // Schedule all events in the combined timetable
+  sortedCourses.forEach(course => {
+    const duration = course.labHours || course.theoryHours || 2;
+    let placed = false;
+    let attempts = 0;
+    
+    while (!placed && attempts < 100) {
+      const d = Math.floor(Math.random() * DAYS);
+      const h = Math.floor(Math.random() * (HOURS - duration + 1));
+      
+      // Check if all required slots are free
+      let canPlace = true;
+      for (let i = 0; i < duration; i++) {
+        if (combinedTimetable[d][h + i].subject) {
+          canPlace = false;
+          break;
+        }
+      }
+      
+      if (canPlace) {
+        // Check for venue conflicts
+        const hasVenueConflict = checkAllSportsVenueConflict(combinedTimetable, d, h, duration, course, courses);
+        
+        if (!hasVenueConflict) {
+          // Place the event - only in first slot for multi-hour events
+          combinedTimetable[d][h] = {
+            subject: course.name,
+            faculty: course.faculties[0],
+            isLab: duration > 1,
+            courseType: course.type
+          };
+          // Mark remaining slots as occupied but empty
+          for (let i = 1; i < duration; i++) {
+            combinedTimetable[d][h + i] = {
+              subject: '',
+              faculty: '',
+              isLab: false,
+              courseType: course.type
+            };
+          }
+          placed = true;
+          
+          steps.push({
+            step: ++stepCount,
+            action: 'Schedule Sports Event',
+            courseCode: course.code,
+            slotAssigned: duration > 1 
+              ? `${DAY_NAMES[d]} H${h + 1}-H${h + duration}`
+              : `${DAY_NAMES[d]} H${h + 1}`,
+            colorUsed: d * HOURS + h,
+            reasoning: `Scheduled ${course.name} for ${duration} hour(s). Venue: ${course.venue || 'TBD'}`
+          });
+        }
+      }
+      attempts++;
+    }
+  });
+  
+  const sportsSchedules: SportSchedule[] = [{
+    sportName: 'Inter-Department Tournament',
+    timetable: combinedTimetable
+  }];
+  
+  return {
+    div1: combinedTimetable,
+    div2: Array(DAYS).fill(null).map(() => 
+      Array(HOURS).fill(null).map(() => ({ subject: '', faculty: '', isLab: false }))
+    ),
+    conflictGraph: nodes,
+    conflictEdges: edges,
+    steps,
+    sportsSchedules
+  };
+}
+
+// Check for venue conflicts in combined sports scheduling
+function checkAllSportsVenueConflict(
+  timetable: Timetable, 
+  day: number, 
+  startHour: number, 
+  duration: number, 
+  course: Course, 
+  allCourses: Course[]
+): boolean {
+  if (!course.venue) return false;
+  
+  for (let i = 0; i < duration; i++) {
+    const slot = timetable[day][startHour + i];
+    if (slot.subject) {
+      const conflictingCourse = allCourses.find(c => c.name === slot.subject);
+      if (conflictingCourse && conflictingCourse.venue === course.venue) {
+        return true;
+      }
+    }
+  }
+  return false;
 }
 
 // Check if placing a course at given time creates faculty conflict

@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 interface TimetableViewProps {
   division: string;
   timetable: Timetable;
+  scheduleType?: string;
 }
 
 const SUBJECT_COLORS = [
@@ -17,7 +18,7 @@ const SUBJECT_COLORS = [
   'hsl(160, 75%, 95%)'
 ];
 
-export const TimetableView = ({ division, timetable }: TimetableViewProps) => {
+export const TimetableView = ({ division, timetable, scheduleType }: TimetableViewProps) => {
   const subjects = Array.from(new Set(
     timetable.flat().filter(slot => slot.subject).map(slot => slot.subject)
   ));
