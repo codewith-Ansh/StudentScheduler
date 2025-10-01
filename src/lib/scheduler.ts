@@ -9,6 +9,10 @@ export interface Course {
   labType: number; // 0=None, 1=Combined, 2=Per-batch
   faculties: string[];
   type?: 'academic' | 'exam' | 'sports' | 'cultural';
+  studentGroups?: string[]; // Groups participating (e.g., ["CS-A", "CS-B"])
+  department?: string; // For exams
+  teams?: string[]; // For sports/cultural events
+  venue?: string; // Resource constraint
 }
 
 export interface Slot {
@@ -29,6 +33,7 @@ export interface GraphNode {
   label: string;
   color?: number;
   conflicts: string[];
+  type: 'course' | 'group' | 'faculty' | 'venue';
 }
 
 const DAYS = 5;
@@ -56,15 +61,50 @@ export interface AlgorithmStep {
 
 // Create conflict graph from courses
 export function buildConflictGraph(courses: Course[]): { nodes: GraphNode[], edges: ConflictEdge[] } {
-  const nodes: GraphNode[] = courses.map(c => ({
-    id: c.code,
-    label: `${c.code} (${c.theoryHours + c.labHours}h)`,
-    conflicts: []
-  }));
-
+  const nodes: GraphNode[] = [];
   const edges: ConflictEdge[] = [];
+  
+  // Add course nodes
+  courses.forEach(c => {
+    nodes.push({
+      id: c.code,
+      label: `${c.code}\n(${c.theoryHours + c.labHours}h)`,
+      conflicts: [],
+      type: 'course'
+    });
+  });
 
-  // Check for conflicts (shared faculty, priority clashes, resource constraints)
+  // Add student group nodes
+  const allGroups = new Set<string>();
+  courses.forEach(c => {
+    if (c.studentGroups) {
+      c.studentGroups.forEach(g => allGroups.add(g));
+    }
+  });
+  
+  allGroups.forEach(group => {
+    nodes.push({
+      id: `GROUP-${group}`,
+      label: `Group\n${group}`,
+      conflicts: [],
+      type: 'group'
+    });
+  });
+
+  // Add faculty nodes
+  const allFaculty = new Set<string>();
+  courses.forEach(c => c.faculties.forEach(f => allFaculty.add(f)));
+  
+  allFaculty.forEach(faculty => {
+    nodes.push({
+      id: `FAC-${faculty}`,
+      label: `Faculty\n${faculty}`,
+      conflicts: [],
+      type: 'faculty'
+    });
+  });
+
+  // Check for conflicts
   for (let i = 0; i < courses.length; i++) {
     for (let j = i + 1; j < courses.length; j++) {
       const c1 = courses[i];
@@ -74,15 +114,66 @@ export function buildConflictGraph(courses: Course[]): { nodes: GraphNode[], edg
       const sharedFaculty = c1.faculties.filter(f => c2.faculties.includes(f));
       
       if (sharedFaculty.length > 0) {
-        nodes[i].conflicts.push(c2.code);
-        nodes[j].conflicts.push(c1.code);
+        const idx1 = nodes.findIndex(n => n.id === c1.code);
+        const idx2 = nodes.findIndex(n => n.id === c2.code);
+        if (idx1 !== -1) nodes[idx1].conflicts.push(c2.code);
+        if (idx2 !== -1) nodes[idx2].conflicts.push(c1.code);
         edges.push({
           from: c1.code,
           to: c2.code,
           reason: `Shared faculty: ${sharedFaculty.join(', ')}`
         });
       }
+
+      // Check student group overlap
+      if (c1.studentGroups && c2.studentGroups) {
+        const sharedGroups = c1.studentGroups.filter(g => c2.studentGroups?.includes(g));
+        if (sharedGroups.length > 0) {
+          const idx1 = nodes.findIndex(n => n.id === c1.code);
+          const idx2 = nodes.findIndex(n => n.id === c2.code);
+          if (idx1 !== -1) nodes[idx1].conflicts.push(c2.code);
+          if (idx2 !== -1) nodes[idx2].conflicts.push(c1.code);
+          edges.push({
+            from: c1.code,
+            to: c2.code,
+            reason: `Shared student groups: ${sharedGroups.join(', ')}`
+          });
+        }
+      }
+
+      // Check venue conflicts
+      if (c1.venue && c2.venue && c1.venue === c2.venue) {
+        const idx1 = nodes.findIndex(n => n.id === c1.code);
+        const idx2 = nodes.findIndex(n => n.id === c2.code);
+        if (idx1 !== -1) nodes[idx1].conflicts.push(c2.code);
+        if (idx2 !== -1) nodes[idx2].conflicts.push(c1.code);
+        edges.push({
+          from: c1.code,
+          to: c2.code,
+          reason: `Shared venue: ${c1.venue}`
+        });
+      }
     }
+
+    // Connect courses to their student groups
+    if (courses[i].studentGroups) {
+      courses[i].studentGroups!.forEach(group => {
+        edges.push({
+          from: courses[i].code,
+          to: `GROUP-${group}`,
+          reason: 'Assigned to group'
+        });
+      });
+    }
+
+    // Connect courses to their faculty
+    courses[i].faculties.forEach(faculty => {
+      edges.push({
+        from: courses[i].code,
+        to: `FAC-${faculty}`,
+        reason: 'Taught by faculty'
+      });
+    });
   }
 
   return { nodes, edges };

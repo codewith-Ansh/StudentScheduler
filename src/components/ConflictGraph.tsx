@@ -37,8 +37,6 @@ export const ConflictGraph = ({ nodes, edges }: ConflictGraphProps) => {
     });
 
     // Draw edges first
-    ctx.strokeStyle = 'hsl(0, 70%, 60%)';
-    ctx.lineWidth = 2;
     edges.forEach(edge => {
       const fromIdx = nodes.findIndex(n => n.id === edge.from);
       const toIdx = nodes.findIndex(n => n.id === edge.to);
@@ -47,15 +45,26 @@ export const ConflictGraph = ({ nodes, edges }: ConflictGraphProps) => {
         const from = nodePositions[fromIdx];
         const to = nodePositions[toIdx];
         
+        // Different colors for different edge types
+        if (edge.reason.includes('Shared')) {
+          ctx.strokeStyle = 'hsl(0, 85%, 60%)'; // Red for conflicts
+          ctx.lineWidth = 3;
+        } else {
+          ctx.strokeStyle = 'hsl(220, 40%, 50%)'; // Blue for relationships
+          ctx.lineWidth = 1.5;
+          ctx.setLineDash([5, 5]);
+        }
+        
         ctx.beginPath();
         ctx.moveTo(from.x, from.y);
         ctx.lineTo(to.x, to.y);
         ctx.stroke();
+        ctx.setLineDash([]);
       }
     });
 
     // Draw nodes
-    const colors = [
+    const courseColors = [
       'hsl(200, 100%, 65%)',
       'hsl(280, 85%, 70%)',
       'hsl(340, 90%, 68%)',
@@ -63,15 +72,28 @@ export const ConflictGraph = ({ nodes, edges }: ConflictGraphProps) => {
       'hsl(45, 95%, 65%)',
       'hsl(160, 75%, 60%)'
     ];
+    
+    const groupColor = 'hsl(150, 70%, 60%)';
+    const facultyColor = 'hsl(30, 90%, 65%)';
 
     nodes.forEach((node, i) => {
       const pos = nodePositions[i];
-      const nodeColor = colors[i % colors.length];
+      let nodeColor = courseColors[i % courseColors.length];
+      let radius = 40;
+      
+      // Different styles for different node types
+      if (node.type === 'group') {
+        nodeColor = groupColor;
+        radius = 35;
+      } else if (node.type === 'faculty') {
+        nodeColor = facultyColor;
+        radius = 35;
+      }
       
       // Draw circle
       ctx.fillStyle = nodeColor;
       ctx.beginPath();
-      ctx.arc(pos.x, pos.y, 40, 0, 2 * Math.PI);
+      ctx.arc(pos.x, pos.y, radius, 0, 2 * Math.PI);
       ctx.fill();
       
       // Draw border
@@ -79,18 +101,19 @@ export const ConflictGraph = ({ nodes, edges }: ConflictGraphProps) => {
       ctx.lineWidth = 3;
       ctx.stroke();
       
-      // Draw label
+      // Draw label (multi-line support)
       ctx.fillStyle = 'hsl(240, 20%, 15%)';
-      ctx.font = 'bold 14px sans-serif';
+      ctx.font = node.type === 'course' ? 'bold 13px sans-serif' : 'bold 11px sans-serif';
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
-      ctx.fillText(node.id, pos.x, pos.y);
       
-      // Draw conflict count
-      if (node.conflicts.length > 0) {
-        ctx.font = '10px sans-serif';
-        ctx.fillText(`${node.conflicts.length} conflicts`, pos.x, pos.y + 15);
-      }
+      const lines = node.label.split('\n');
+      const lineHeight = 14;
+      const startY = pos.y - ((lines.length - 1) * lineHeight) / 2;
+      
+      lines.forEach((line, idx) => {
+        ctx.fillText(line, pos.x, startY + idx * lineHeight);
+      });
     });
 
   }, [nodes, edges]);
@@ -107,7 +130,8 @@ export const ConflictGraph = ({ nodes, edges }: ConflictGraphProps) => {
     <Card className="p-6">
       <h3 className="text-2xl font-bold mb-4">Conflict Graph Visualization</h3>
       <p className="text-muted-foreground mb-6">
-        Nodes represent courses. Red edges show conflicts (shared resources).
+        <strong>Blue nodes:</strong> Courses | <strong>Green nodes:</strong> Student Groups | <strong>Orange nodes:</strong> Faculty<br />
+        <strong>Red solid edges:</strong> Conflicts (shared resources) | <strong>Blue dashed edges:</strong> Relationships
       </p>
       <div className="bg-card rounded-lg overflow-hidden">
         <canvas 
