@@ -6,6 +6,7 @@ import { SchedulerForm } from '@/components/SchedulerForm';
 import { ConflictGraph } from '@/components/ConflictGraph';
 import { TimetableView } from '@/components/TimetableView';
 import { AlgorithmSteps } from '@/components/AlgorithmSteps';
+import { SetTheoryAnalysis } from '@/components/SetTheoryAnalysis';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Course, ScheduleResult, graphColoringSchedule } from '@/lib/scheduler';
@@ -61,7 +62,7 @@ const Index = () => {
   };
 
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen pt-16">
       {/* Hero Section */}
       <Hero onGetStarted={() => {
         setShowScheduler(true);
@@ -129,41 +130,41 @@ const Index = () => {
                 </h2>
                 <p className="text-xl text-muted-foreground">
                   {scheduleType === 'sports' 
-                    ? 'Four-Team Sports Tournament (5 Days)'
-                    : scheduleType === 'cultural'
-                    ? 'Inter-Department Cultural Events'
-                    : scheduleType === 'exam'
-                    ? 'Department-wise Practical Examinations'
+                    ? 'Conflict-free sports event schedules'
                     : 'Conflict-free timetables for both divisions'
                   }
                 </p>
               </div>
 
               <Tabs defaultValue="timetables" className="space-y-8">
-                <TabsList className="grid w-full grid-cols-2 max-w-md mx-auto">
+                <TabsList className="grid w-full grid-cols-3 max-w-2xl mx-auto">
                   <TabsTrigger value="timetables">Timetables</TabsTrigger>
+                  <TabsTrigger value="set-theory">Set Theory</TabsTrigger>
                   <TabsTrigger value="algorithm">Algorithm</TabsTrigger>
                 </TabsList>
 
                 <TabsContent value="timetables" className="space-y-8">
-                  {scheduleType === 'sports' || scheduleType === 'cultural' || scheduleType === 'exam' ? (
-                    // Combined timetable for sports, cultural, and exam events
+                  {scheduleType === 'sports' ? (
+                    // Combined sports timetable
                     <TimetableView 
-                      division={
-                        scheduleType === 'sports' ? 'Inter-Department Tournament' :
-                        scheduleType === 'cultural' ? 'Cultural Events Schedule' :
-                        'Department-wise Practical Exams'
-                      }
+                      division="Inter-Department Tournament" 
                       timetable={scheduleResult.div1}
                       scheduleType={scheduleType}
                     />
                   ) : (
-                    // Division-wise timetables for academic only
+                    // Division-wise timetables for academic/exam/cultural
                     <>
                       <TimetableView division="Division 1" timetable={scheduleResult.div1} scheduleType={scheduleType} />
                       <TimetableView division="Division 2" timetable={scheduleResult.div2} scheduleType={scheduleType} />
                     </>
                   )}
+                </TabsContent>
+
+                <TabsContent value="set-theory">
+                  <SetTheoryAnalysis 
+                    nodes={scheduleResult?.conflictGraph || []} 
+                    edges={scheduleResult?.conflictEdges || []} 
+                  />
                 </TabsContent>
 
                 <TabsContent value="algorithm">

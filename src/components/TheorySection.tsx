@@ -1,5 +1,5 @@
 import { Card } from '@/components/ui/card';
-import { Network, Palette, Users } from 'lucide-react';
+import { Network, Palette, Users, Circle } from 'lucide-react';
 
 export const TheorySection = () => {
   return (
@@ -88,6 +88,101 @@ export const TheorySection = () => {
               </ul>
             </Card>
           </div>
+
+          {/* Set Theory Deep Dive */}
+          <Card className="p-10 bg-gradient-to-br from-accent/5 to-primary/5 border-accent/20 mb-16">
+            <div className="flex items-center gap-4 mb-8">
+              <div className="w-16 h-16 bg-gradient-to-br from-accent to-primary rounded-2xl flex items-center justify-center">
+                <Circle className="w-8 h-8 text-white" />
+              </div>
+              <h3 className="text-3xl font-bold">Set Theory in Scheduling</h3>
+            </div>
+            
+            <div className="grid md:grid-cols-2 gap-8 mb-8">
+              <div>
+                <h4 className="text-xl font-bold mb-4 text-primary">Set Representations</h4>
+                <div className="space-y-4 text-sm">
+                  <div className="bg-card p-4 rounded-lg border">
+                    <p className="font-semibold mb-2">Groups/Divisions (G):</p>
+                    <p className="text-muted-foreground">G = {"CS-A, CS-B, IT-A, IT-B, ECE-A"}</p>
+                    <p className="text-xs text-muted-foreground mt-1">Each group represents a set of students</p>
+                  </div>
+                  
+                  <div className="bg-card p-4 rounded-lg border">
+                    <p className="font-semibold mb-2">Faculty/Instructors (F):</p>
+                    <p className="text-muted-foreground">F = {"Prof.Smith, Dr.Wilson, Prof.Davis"}</p>
+                    <p className="text-xs text-muted-foreground mt-1">Set of available teaching resources</p>
+                  </div>
+                  
+                  <div className="bg-card p-4 rounded-lg border">
+                    <p className="font-semibold mb-2">Courses (C):</p>
+                    <p className="text-muted-foreground">C = {"DM, DS, DB, NW, SE, AI"}</p>
+                    <p className="text-xs text-muted-foreground mt-1">Set of subjects to be scheduled</p>
+                  </div>
+                </div>
+              </div>
+              
+              <div>
+                <h4 className="text-xl font-bold mb-4 text-accent">Set Operations</h4>
+                <div className="space-y-4 text-sm">
+                  <div className="bg-card p-4 rounded-lg border">
+                    <p className="font-semibold mb-2">Intersection (∩):</p>
+                    <p className="text-muted-foreground">F(DM) ∩ F(DS) = {"Prof.Smith"}</p>
+                    <p className="text-xs text-muted-foreground mt-1">Shared faculty creates conflict</p>
+                  </div>
+                  
+                  <div className="bg-card p-4 rounded-lg border">
+                    <p className="font-semibold mb-2">Union (∪):</p>
+                    <p className="text-muted-foreground">G(DM) ∪ G(DS) = {"CS-A, CS-B, IT-A"}</p>
+                    <p className="text-xs text-muted-foreground mt-1">Combined student groups affected</p>
+                  </div>
+                  
+                  <div className="bg-card p-4 rounded-lg border">
+                    <p className="font-semibold mb-2">Disjoint Sets (∅):</p>
+                    <p className="text-muted-foreground">F(AI) ∩ F(NW) = ∅</p>
+                    <p className="text-xs text-muted-foreground mt-1">No shared resources = no conflict</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <div className="bg-card p-6 rounded-lg border">
+              <h4 className="text-lg font-bold mb-4">Conflict Detection Formula</h4>
+              <div className="bg-muted p-4 rounded font-mono text-sm mb-4">
+                Conflict(Course₁, Course₂) = (F₁ ∩ F₂ ≠ ∅) ∨ (G₁ ∩ G₂ ≠ ∅) ∨ (R₁ ∩ R₂ ≠ ∅)
+              </div>
+              <p className="text-muted-foreground text-sm">
+                Where F = Faculty sets, G = Group sets, R = Resource sets. If any intersection is non-empty, 
+                the courses conflict and cannot be scheduled simultaneously.
+              </p>
+            </div>
+            
+            <div className="mt-8 grid md:grid-cols-3 gap-6">
+              <div className="text-center">
+                <div className="w-12 h-12 bg-primary/20 rounded-full flex items-center justify-center mx-auto mb-3">
+                  <span className="text-primary font-bold text-lg">∩</span>
+                </div>
+                <h5 className="font-semibold mb-2">Intersection</h5>
+                <p className="text-xs text-muted-foreground">Finds shared resources that create conflicts</p>
+              </div>
+              
+              <div className="text-center">
+                <div className="w-12 h-12 bg-accent/20 rounded-full flex items-center justify-center mx-auto mb-3">
+                  <span className="text-accent font-bold text-lg">∪</span>
+                </div>
+                <h5 className="font-semibold mb-2">Union</h5>
+                <p className="text-xs text-muted-foreground">Combines all affected groups and resources</p>
+              </div>
+              
+              <div className="text-center">
+                <div className="w-12 h-12 bg-primary/20 rounded-full flex items-center justify-center mx-auto mb-3">
+                  <span className="text-primary font-bold text-lg">∅</span>
+                </div>
+                <h5 className="font-semibold mb-2">Empty Set</h5>
+                <p className="text-xs text-muted-foreground">No conflicts = courses can share time slots</p>
+              </div>
+            </div>
+          </Card>
 
           {/* Algorithm explanation */}
           <Card className="p-10 bg-card">
