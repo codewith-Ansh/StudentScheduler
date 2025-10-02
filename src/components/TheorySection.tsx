@@ -186,53 +186,104 @@ export const TheorySection = () => {
 
           {/* Algorithm explanation */}
           <Card className="p-10 bg-card">
-            <h3 className="text-3xl font-bold mb-6 text-center">Welsh-Powell Algorithm</h3>
-            <div className="space-y-6">
-              <div className="flex gap-4 items-start">
-                <div className="w-10 h-10 rounded-full bg-primary text-white flex items-center justify-center font-bold flex-shrink-0">
-                  1
-                </div>
-                <div>
-                  <h4 className="font-bold text-lg mb-2">Sort by Degree</h4>
-                  <p className="text-muted-foreground">
-                    Order vertices by the number of conflicts (edges). Higher degree = more constraints.
-                  </p>
-                </div>
-              </div>
-
-              <div className="flex gap-4 items-start">
-                <div className="w-10 h-10 rounded-full bg-primary text-white flex items-center justify-center font-bold flex-shrink-0">
-                  2
-                </div>
-                <div>
-                  <h4 className="font-bold text-lg mb-2">Assign First Available Color</h4>
-                  <p className="text-muted-foreground">
-                    For each vertex, assign the smallest color (time slot) that doesn't conflict with neighbors.
-                  </p>
+            <h3 className="text-3xl font-bold mb-8 text-center">Graph Coloring Algorithms</h3>
+            
+            <div className="grid md:grid-cols-2 gap-8">
+              {/* Welsh-Powell */}
+              <div className="space-y-4">
+                <h4 className="text-xl font-bold text-primary">Welsh-Powell Algorithm</h4>
+                <div className="space-y-3">
+                  <div className="flex gap-3 items-start">
+                    <div className="w-6 h-6 rounded-full bg-primary text-white flex items-center justify-center text-sm font-bold flex-shrink-0">1</div>
+                    <p className="text-sm text-muted-foreground">Sort vertices by degree (conflicts)</p>
+                  </div>
+                  <div className="flex gap-3 items-start">
+                    <div className="w-6 h-6 rounded-full bg-primary text-white flex items-center justify-center text-sm font-bold flex-shrink-0">2</div>
+                    <p className="text-sm text-muted-foreground">Assign smallest available color</p>
+                  </div>
+                  <div className="flex gap-3 items-start">
+                    <div className="w-6 h-6 rounded-full bg-primary text-white flex items-center justify-center text-sm font-bold flex-shrink-0">3</div>
+                    <p className="text-sm text-muted-foreground">Balanced approach - good for most cases</p>
+                  </div>
                 </div>
               </div>
 
-              <div className="flex gap-4 items-start">
-                <div className="w-10 h-10 rounded-full bg-primary text-white flex items-center justify-center font-bold flex-shrink-0">
-                  3
-                </div>
-                <div>
-                  <h4 className="font-bold text-lg mb-2">Greedy Selection</h4>
-                  <p className="text-muted-foreground">
-                    Continue until all vertices are colored. This guarantees a valid schedule.
-                  </p>
+              {/* Greedy */}
+              <div className="space-y-4">
+                <h4 className="text-xl font-bold text-accent">Greedy Algorithm</h4>
+                <div className="space-y-3">
+                  <div className="flex gap-3 items-start">
+                    <div className="w-6 h-6 rounded-full bg-accent text-white flex items-center justify-center text-sm font-bold flex-shrink-0">1</div>
+                    <p className="text-sm text-muted-foreground">Process courses in order</p>
+                  </div>
+                  <div className="flex gap-3 items-start">
+                    <div className="w-6 h-6 rounded-full bg-accent text-white flex items-center justify-center text-sm font-bold flex-shrink-0">2</div>
+                    <p className="text-sm text-muted-foreground">First available slot assignment</p>
+                  </div>
+                  <div className="flex gap-3 items-start">
+                    <div className="w-6 h-6 rounded-full bg-accent text-white flex items-center justify-center text-sm font-bold flex-shrink-0">3</div>
+                    <p className="text-sm text-muted-foreground">Fastest execution, approximate solution</p>
+                  </div>
                 </div>
               </div>
 
-              <div className="flex gap-4 items-start">
-                <div className="w-10 h-10 rounded-full bg-primary text-white flex items-center justify-center font-bold flex-shrink-0">
-                  4
+              {/* DSATUR */}
+              <div className="space-y-4">
+                <h4 className="text-xl font-bold text-primary">DSATUR Algorithm</h4>
+                <div className="space-y-3">
+                  <div className="flex gap-3 items-start">
+                    <div className="w-6 h-6 rounded-full bg-primary text-white flex items-center justify-center text-sm font-bold flex-shrink-0">1</div>
+                    <p className="text-sm text-muted-foreground">Dynamic saturation degree calculation</p>
+                  </div>
+                  <div className="flex gap-3 items-start">
+                    <div className="w-6 h-6 rounded-full bg-primary text-white flex items-center justify-center text-sm font-bold flex-shrink-0">2</div>
+                    <p className="text-sm text-muted-foreground">Select highest saturated vertex</p>
+                  </div>
+                  <div className="flex gap-3 items-start">
+                    <div className="w-6 h-6 rounded-full bg-primary text-white flex items-center justify-center text-sm font-bold flex-shrink-0">3</div>
+                    <p className="text-sm text-muted-foreground">Balances efficiency with accuracy</p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Backtracking */}
+              <div className="space-y-4">
+                <h4 className="text-xl font-bold text-accent">Backtracking Algorithm</h4>
+                <div className="space-y-3">
+                  <div className="flex gap-3 items-start">
+                    <div className="w-6 h-6 rounded-full bg-accent text-white flex items-center justify-center text-sm font-bold flex-shrink-0">1</div>
+                    <p className="text-sm text-muted-foreground">Try all possible assignments</p>
+                  </div>
+                  <div className="flex gap-3 items-start">
+                    <div className="w-6 h-6 rounded-full bg-accent text-white flex items-center justify-center text-sm font-bold flex-shrink-0">2</div>
+                    <p className="text-sm text-muted-foreground">Backtrack on conflicts</p>
+                  </div>
+                  <div className="flex gap-3 items-start">
+                    <div className="w-6 h-6 rounded-full bg-accent text-white flex items-center justify-center text-sm font-bold flex-shrink-0">3</div>
+                    <p className="text-sm text-muted-foreground">Exact solution, computationally heavy</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div className="mt-8 p-6 bg-muted rounded-lg">
+              <h5 className="font-bold mb-4 text-center">Algorithm Comparison</h5>
+              <div className="grid grid-cols-4 gap-4 text-center text-sm">
+                <div>
+                  <div className="font-semibold text-primary">Welsh-Powell</div>
+                  <div className="text-muted-foreground">Balanced</div>
                 </div>
                 <div>
-                  <h4 className="font-bold text-lg mb-2">Optimization</h4>
-                  <p className="text-muted-foreground">
-                    Additional constraints (labs need 2 hours, priority ordering) are applied for real-world viability.
-                  </p>
+                  <div className="font-semibold text-accent">Greedy</div>
+                  <div className="text-muted-foreground">Fastest</div>
+                </div>
+                <div>
+                  <div className="font-semibold text-primary">DSATUR</div>
+                  <div className="text-muted-foreground">Efficient</div>
+                </div>
+                <div>
+                  <div className="font-semibold text-accent">Backtracking</div>
+                  <div className="text-muted-foreground">Optimal</div>
                 </div>
               </div>
             </div>

@@ -6,9 +6,10 @@ import { Play, Pause, RotateCcw, ChevronLeft, ChevronRight } from 'lucide-react'
 
 interface AlgorithmStepsProps {
   steps: AlgorithmStep[];
+  algorithmUsed?: string;
 }
 
-export const AlgorithmSteps = ({ steps }: AlgorithmStepsProps) => {
+export const AlgorithmSteps = ({ steps, algorithmUsed }: AlgorithmStepsProps) => {
   const [currentStep, setCurrentStep] = useState(0);
   const [isPlaying, setIsPlaying] = useState(false);
   const [playbackSpeed] = useState(1000);
@@ -63,7 +64,21 @@ export const AlgorithmSteps = ({ steps }: AlgorithmStepsProps) => {
 
   return (
     <Card className="p-6">
-      <h3 className="text-2xl font-bold mb-6">Algorithm Visualization</h3>
+      {/* 
+        ALGORITHM VISUALIZATION HEADER
+        
+        Displays the algorithm name and provides context for the step-by-step
+        execution trace. This helps users understand which algorithm was used
+        and how it made scheduling decisions.
+      */}
+      <div className="flex items-center justify-between mb-6">
+        <h3 className="text-2xl font-bold">Algorithm Visualization</h3>
+        {algorithmUsed && (
+          <div className="px-4 py-2 bg-primary/10 text-primary rounded-lg font-semibold">
+            {algorithmUsed} Algorithm
+          </div>
+        )}
+      </div>
       
       {/* Controls */}
       <div className="flex items-center justify-between mb-6 p-4 bg-muted rounded-lg">

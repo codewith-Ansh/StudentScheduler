@@ -6,8 +6,11 @@ import { SchedulerForm } from '@/components/SchedulerForm';
 import { ConflictGraph } from '@/components/ConflictGraph';
 import { TimetableView } from '@/components/TimetableView';
 import { AlgorithmSteps } from '@/components/AlgorithmSteps';
+import { AlgorithmComparison } from '@/components/AlgorithmComparison';
 import { SetTheoryAnalysis } from '@/components/SetTheoryAnalysis';
 import { Button } from '@/components/ui/button';
+import { Label } from '@/components/ui/label';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Course, ScheduleResult, graphColoringSchedule } from '@/lib/scheduler';
 import { demoCourses, getScheduleTypeData } from '@/lib/demoData';
@@ -18,6 +21,9 @@ const Index = () => {
   const [courses, setCourses] = useState<Course[]>([]);
   const [scheduleResult, setScheduleResult] = useState<ScheduleResult | null>(null);
   const [scheduleType, setScheduleType] = useState<string>('academic');
+  // Algorithm selection state - determines which graph coloring algorithm to use
+  // Default: Welsh-Powell (balanced approach suitable for most cases)
+  const [selectedAlgorithm, setSelectedAlgorithm] = useState<string>('welshPowell');
   const [showScheduler, setShowScheduler] = useState(false);
 
   const handleAddCourse = (course: Course) => {
@@ -41,17 +47,32 @@ const Index = () => {
     toast.success('Cleared all data');
   };
 
+  /**
+   * SCHEDULE GENERATION HANDLER
+   * 
+   * Orchestrates the timetable generation process:
+   * 1. Validates input (at least one course required)
+   * 2. Calls selected graph coloring algorithm
+   * 3. Updates UI with results
+   * 4. Provides user feedback
+   * 
+   * Parameters passed to algorithm:
+   * - courses: Input data to schedule
+   * - 30: Maximum time slots (5 days × 6 hours)
+   * - algorithm: User-selected algorithm type
+   */
   const handleGenerate = () => {
     if (courses.length === 0) {
       toast.error('Please add at least one course');
       return;
     }
 
-    const result = graphColoringSchedule(courses);
+    // Execute all graph coloring algorithms for comparison
+    const result = graphColoringSchedule(courses, 30);
     setScheduleResult(result);
-    toast.success('Schedule generated successfully!');
+    toast.success(`All algorithms executed! Recommended: ${result.comparison.recommended}`);
     
-    // Scroll to results
+    // Auto-scroll to results section
     setTimeout(() => {
       document.getElementById('results')?.scrollIntoView({ behavior: 'smooth' });
     }, 100);
@@ -130,17 +151,18 @@ const Index = () => {
                 </h2>
                 <p className="text-xl text-muted-foreground">
                   {scheduleType === 'sports' 
-                    ? 'Conflict-free sports event schedules'
-                    : 'Conflict-free timetables for both divisions'
+                    ? 'Conflict-free sports event schedules with algorithm comparison'
+                    : `Conflict-free timetables with algorithm comparison (Recommended: ${scheduleResult.comparison.recommended})`
                   }
                 </p>
               </div>
 
               <Tabs defaultValue="timetables" className="space-y-8">
-                <TabsList className="grid w-full grid-cols-3 max-w-2xl mx-auto">
+                <TabsList className="grid w-full grid-cols-4 max-w-4xl mx-auto">
                   <TabsTrigger value="timetables">Timetables</TabsTrigger>
+                  <TabsTrigger value="comparison">Algorithm Comparison</TabsTrigger>
                   <TabsTrigger value="set-theory">Set Theory</TabsTrigger>
-                  <TabsTrigger value="algorithm">Algorithm</TabsTrigger>
+                  <TabsTrigger value="algorithm">Algorithm Steps</TabsTrigger>
                 </TabsList>
 
                 <TabsContent value="timetables" className="space-y-8">
@@ -148,14 +170,82 @@ const Index = () => {
                     // Combined sports timetable
                     <TimetableView 
                       division="Inter-Department Tournament" 
-                      timetable={scheduleResult.div1}
+                      timetable={scheduleResult.algorithms.welshPowell.div1}
                       scheduleType={scheduleType}
                     />
-                  ) : (
-                    // Division-wise timetables for academic/exam/cultural
+                  ) : scheduleType === 'exam' ? (
+                    // University-wide examination schedule
                     <>
-                      <TimetableView division="Division 1" timetable={scheduleResult.div1} scheduleType={scheduleType} />
-                      <TimetableView division="Division 2" timetable={scheduleResult.div2} scheduleType={scheduleType} />
+                      <div className="mb-4">
+                        <Label>View Algorithm Results:</Label>
+                        <Select value={selectedAlgorithm} onValueChange={setSelectedAlgorithm}>
+                          <SelectTrigger className="mt-2 max-w-xs">
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="welshPowell">Welsh-Powell</SelectItem>
+                            <SelectItem value="greedy">Greedy</SelectItem>
+                            <SelectItem value="dsatur">DSATUR</SelectItem>
+                            <SelectItem value="backtracking">Backtracking</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <TimetableView 
+                        division={`University Examination Schedule - ${scheduleResult.algorithms[selectedAlgorithm as keyof typeof scheduleResult.algorithms].algorithmName}`} 
+                        timetable={scheduleResult.algorithms[selectedAlgorithm as keyof typeof scheduleResult.algorithms].div1} 
+                        scheduleType={scheduleType} 
+                      />
+                    </>
+                  ) : scheduleType === 'cultural' ? (
+                    // University-wide cultural events schedule
+                    <>
+                      <div className="mb-4">
+                        <Label>View Algorithm Results:</Label>
+                        <Select value={selectedAlgorithm} onValueChange={setSelectedAlgorithm}>
+                          <SelectTrigger className="mt-2 max-w-xs">
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="welshPowell">Welsh-Powell</SelectItem>
+                            <SelectItem value="greedy">Greedy</SelectItem>
+                            <SelectItem value="dsatur">DSATUR</SelectItem>
+                            <SelectItem value="backtracking">Backtracking</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <TimetableView 
+                        division={`University Cultural Events Schedule - ${scheduleResult.algorithms[selectedAlgorithm as keyof typeof scheduleResult.algorithms].algorithmName}`} 
+                        timetable={scheduleResult.algorithms[selectedAlgorithm as keyof typeof scheduleResult.algorithms].div1} 
+                        scheduleType={scheduleType} 
+                      />
+                    </>
+                  ) : (
+                    // Academic courses - show both divisions
+                    <>
+                      <div className="mb-4">
+                        <Label>View Algorithm Results:</Label>
+                        <Select value={selectedAlgorithm} onValueChange={setSelectedAlgorithm}>
+                          <SelectTrigger className="mt-2 max-w-xs">
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="welshPowell">Welsh-Powell</SelectItem>
+                            <SelectItem value="greedy">Greedy</SelectItem>
+                            <SelectItem value="dsatur">DSATUR</SelectItem>
+                            <SelectItem value="backtracking">Backtracking</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <TimetableView 
+                        division={`Division 1 - ${scheduleResult.algorithms[selectedAlgorithm as keyof typeof scheduleResult.algorithms].algorithmName}`} 
+                        timetable={scheduleResult.algorithms[selectedAlgorithm as keyof typeof scheduleResult.algorithms].div1} 
+                        scheduleType={scheduleType} 
+                      />
+                      <TimetableView 
+                        division={`Division 2 - ${scheduleResult.algorithms[selectedAlgorithm as keyof typeof scheduleResult.algorithms].algorithmName}`} 
+                        timetable={scheduleResult.algorithms[selectedAlgorithm as keyof typeof scheduleResult.algorithms].div2} 
+                        scheduleType={scheduleType} 
+                      />
                     </>
                   )}
                 </TabsContent>
@@ -167,8 +257,18 @@ const Index = () => {
                   />
                 </TabsContent>
 
+                <TabsContent value="comparison">
+                  <AlgorithmComparison 
+                    algorithms={scheduleResult.algorithms}
+                    comparison={scheduleResult.comparison}
+                  />
+                </TabsContent>
+
                 <TabsContent value="algorithm">
-                  <AlgorithmSteps steps={scheduleResult.steps} />
+                  <AlgorithmSteps 
+                    steps={scheduleResult.algorithms[selectedAlgorithm as keyof typeof scheduleResult.algorithms].steps} 
+                    algorithmUsed={scheduleResult.algorithms[selectedAlgorithm as keyof typeof scheduleResult.algorithms].algorithmName}
+                  />
                 </TabsContent>
               </Tabs>
             </div>

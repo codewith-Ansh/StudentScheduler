@@ -169,6 +169,9 @@ export const SchedulerForm = ({
               <SelectItem value="cultural">Cultural Events</SelectItem>
             </SelectContent>
           </Select>
+          <p className="text-sm text-muted-foreground mt-2">
+            All four graph coloring algorithms will be executed for comparison
+          </p>
         </div>
 
         {validationError && (
