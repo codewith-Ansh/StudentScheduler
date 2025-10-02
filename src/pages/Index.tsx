@@ -129,7 +129,11 @@ const Index = () => {
                 </h2>
                 <p className="text-xl text-muted-foreground">
                   {scheduleType === 'sports' 
-                    ? 'Conflict-free sports event schedules'
+                    ? 'Four-Team Sports Tournament (5 Days)'
+                    : scheduleType === 'cultural'
+                    ? 'Inter-Department Cultural Events'
+                    : scheduleType === 'exam'
+                    ? 'Department-wise Practical Examinations'
                     : 'Conflict-free timetables for both divisions'
                   }
                 </p>
@@ -142,15 +146,19 @@ const Index = () => {
                 </TabsList>
 
                 <TabsContent value="timetables" className="space-y-8">
-                  {scheduleType === 'sports' ? (
-                    // Combined sports timetable
+                  {scheduleType === 'sports' || scheduleType === 'cultural' || scheduleType === 'exam' ? (
+                    // Combined timetable for sports, cultural, and exam events
                     <TimetableView 
-                      division="Inter-Department Tournament" 
+                      division={
+                        scheduleType === 'sports' ? 'Inter-Department Tournament' :
+                        scheduleType === 'cultural' ? 'Cultural Events Schedule' :
+                        'Department-wise Practical Exams'
+                      }
                       timetable={scheduleResult.div1}
                       scheduleType={scheduleType}
                     />
                   ) : (
-                    // Division-wise timetables for academic/exam/cultural
+                    // Division-wise timetables for academic only
                     <>
                       <TimetableView division="Division 1" timetable={scheduleResult.div1} scheduleType={scheduleType} />
                       <TimetableView division="Division 2" timetable={scheduleResult.div2} scheduleType={scheduleType} />

@@ -187,10 +187,10 @@ export function buildConflictGraph(courses: Course[]): { nodes: GraphNode[], edg
 
 // Graph coloring algorithm (assign time slots as colors)
 function graphColoringSchedule(courses: Course[], maxColors: number = DAYS * HOURS): ScheduleResult {
-  // Check if this is a sports schedule
-  const isSportsSchedule = courses.length > 0 && courses[0].type === 'sports';
+  // Check if this is a combined schedule (sports, cultural, or exam)
+  const isCombinedSchedule = courses.length > 0 && (courses[0].type === 'sports' || courses[0].type === 'cultural' || courses[0].type === 'exam');
   
-  if (isSportsSchedule) {
+  if (isCombinedSchedule) {
     return generateSportsSchedule(courses);
   }
   const steps: AlgorithmStep[] = [];
@@ -352,8 +352,19 @@ function generateSportsSchedule(courses: Course[]): ScheduleResult {
     Array(HOURS).fill(null).map(() => ({ subject: '', faculty: '', isLab: false }))
   );
   
-  // Sort courses by priority (Group=1, Semi=2, Final=3)
-  const sortedCourses = [...courses].sort((a, b) => a.priority - b.priority);
+  // Sort courses to ensure finals are last for each sport
+  const sortedCourses = [...courses].sort((a, b) => {
+    // First by priority
+    if (a.priority !== b.priority) {
+      return a.priority - b.priority;
+    }
+    // Then ensure finals come last within same priority
+    const aIsFinal = a.name.includes('Final');
+    const bIsFinal = b.name.includes('Final');
+    if (aIsFinal && !bIsFinal) return 1;
+    if (!aIsFinal && bIsFinal) return -1;
+    return 0;
+  });
   
   let stepCount = 0;
   
@@ -381,18 +392,11 @@ function generateSportsSchedule(courses: Course[]): ScheduleResult {
         const hasVenueConflict = checkAllSportsVenueConflict(combinedTimetable, d, h, duration, course, courses);
         
         if (!hasVenueConflict) {
-          // Place the event - only in first slot for multi-hour events
-          combinedTimetable[d][h] = {
-            subject: course.name,
-            faculty: course.faculties[0],
-            isLab: duration > 1,
-            courseType: course.type
-          };
-          // Mark remaining slots as occupied but empty
-          for (let i = 1; i < duration; i++) {
+          // Place the event in each required slot
+          for (let i = 0; i < duration; i++) {
             combinedTimetable[d][h + i] = {
-              subject: '',
-              faculty: '',
+              subject: course.name,
+              faculty: course.faculties[0],
               isLab: false,
               courseType: course.type
             };
