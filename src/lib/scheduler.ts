@@ -50,6 +50,7 @@ export interface SportSchedule {
 export interface AlgorithmResult {
   div1: Timetable;
   div2: Timetable;
+  groupTimetables?: { [groupName: string]: Timetable };
   steps: AlgorithmStep[];
   algorithmName: string;
   executionTime: number;
@@ -61,6 +62,7 @@ export interface ScheduleResult {
   conflictGraph: GraphNode[];
   conflictEdges: ConflictEdge[];
   sportsSchedules?: SportSchedule[];
+  groupTimetables?: { [groupName: string]: Timetable };
   algorithms: {
     welshPowell: AlgorithmResult;
     greedy: AlgorithmResult;
@@ -274,6 +276,7 @@ function graphColoringSchedule(courses: Course[], maxColors: number = DAYS * HOU
     {
       div1: wpResult.div1,
       div2: wpResult.div2,
+      groupTimetables: wpResult.groupTimetables,
       steps: wpResult.steps,
       algorithmName: 'Welsh-Powell',
       executionTime: 1,
@@ -283,6 +286,7 @@ function graphColoringSchedule(courses: Course[], maxColors: number = DAYS * HOU
     {
       div1: wpResult.div1,
       div2: wpResult.div2,
+      groupTimetables: wpResult.groupTimetables,
       steps: wpResult.steps,
       algorithmName: 'Greedy',
       executionTime: 0.5,
@@ -292,6 +296,7 @@ function graphColoringSchedule(courses: Course[], maxColors: number = DAYS * HOU
     {
       div1: wpResult.div1,
       div2: wpResult.div2,
+      groupTimetables: wpResult.groupTimetables,
       steps: wpResult.steps,
       algorithmName: 'DSATUR',
       executionTime: 1.2,
@@ -301,6 +306,7 @@ function graphColoringSchedule(courses: Course[], maxColors: number = DAYS * HOU
     {
       div1: wpResult.div1,
       div2: wpResult.div2,
+      groupTimetables: wpResult.groupTimetables,
       steps: [{ step: 1, action: 'Skipped', courseCode: 'ALL', reasoning: 'Disabled for performance' }],
       algorithmName: 'Backtracking',
       executionTime: 0,
@@ -333,6 +339,7 @@ function graphColoringSchedule(courses: Course[], maxColors: number = DAYS * HOU
   return {
     conflictGraph: nodes,
     conflictEdges: edges,
+    groupTimetables: wpResult.groupTimetables,
     algorithms: {
       welshPowell: results[0],
       greedy: results[1],
@@ -381,7 +388,7 @@ function graphColoringSchedule(courses: Course[], maxColors: number = DAYS * HOU
  * 
  * Best for: General-purpose scheduling with balanced requirements
  */
-function welshPowellSchedule(courses: Course[], maxColors: number = DAYS * HOURS): { div1: Timetable, div2: Timetable, steps: AlgorithmStep[] } {
+function welshPowellSchedule(courses: Course[], maxColors: number = DAYS * HOURS): { div1: Timetable, div2: Timetable, steps: AlgorithmStep[], groupTimetables?: { [groupName: string]: Timetable } } {
   // Check if this is a combined schedule (sports, cultural, or exam)
   const isCombinedSchedule = courses.length > 0 && (courses[0].type === 'sports' || courses[0].type === 'cultural' || courses[0].type === 'exam');
   
@@ -390,6 +397,15 @@ function welshPowellSchedule(courses: Course[], maxColors: number = DAYS * HOURS
   }
   const steps: AlgorithmStep[] = [];
   const { nodes, edges } = buildConflictGraph(courses);
+  
+  // Get all unique student groups
+  const allGroups = new Set<string>();
+  courses.forEach(course => {
+    if (course.studentGroups) {
+      course.studentGroups.forEach(group => allGroups.add(group));
+    }
+  });
+  const uniqueGroups = Array.from(allGroups);
   
   // Sort courses by degree (number of conflicts) - Welsh-Powell algorithm
   const sortedCourses = [...courses].sort((a, b) => {
@@ -403,13 +419,23 @@ function welshPowellSchedule(courses: Course[], maxColors: number = DAYS * HOURS
     return a.priority - b.priority;
   });
 
-  // Initialize timetables
+  // Initialize timetables - create one for each group if multiple groups exist
   const div1: Timetable = Array(DAYS).fill(null).map(() => 
     Array(HOURS).fill(null).map(() => ({ subject: '', faculty: '', isLab: false }))
   );
   const div2: Timetable = Array(DAYS).fill(null).map(() => 
     Array(HOURS).fill(null).map(() => ({ subject: '', faculty: '', isLab: false }))
   );
+  
+  // Create individual timetables for each group if more than 2 groups
+  const groupTimetables: { [groupName: string]: Timetable } = {};
+  if (uniqueGroups.length > 2) {
+    uniqueGroups.forEach(group => {
+      groupTimetables[group] = Array(DAYS).fill(null).map(() => 
+        Array(HOURS).fill(null).map(() => ({ subject: '', faculty: '', isLab: false }))
+      );
+    });
+  }
 
   let stepCount = 0;
 
@@ -534,7 +560,72 @@ function welshPowellSchedule(courses: Course[], maxColors: number = DAYS * HOURS
     }
   });
 
-  return { div1, div2, steps };
+  // If we have group-specific timetables, populate them
+  if (uniqueGroups.length > 2) {
+    // Schedule courses for each specific group
+    uniqueGroups.forEach(groupName => {
+      const groupTimetable = groupTimetables[groupName];
+      let stepCount = 0;
+      
+      // Filter courses for this specific group
+      const groupCourses = sortedCourses.filter(course => 
+        course.studentGroups?.includes(groupName)
+      );
+      
+      // Place labs first for this group
+      groupCourses.forEach(course => {
+        if (course.labHours > 0) {
+          const labSessions = Math.floor(course.labHours / 2);
+          
+          for (let s = 0; s < labSessions; s++) {
+            let placed = false;
+            let attempts = 0;
+            
+            while (!placed && attempts < 100) {
+              const d = Math.floor(Math.random() * DAYS);
+              const h = Math.floor(Math.random() * (HOURS - 1));
+              
+              if (!groupTimetable[d][h].subject && !groupTimetable[d][h + 1].subject) {
+                const hasConflict = checkTimeConflict(groupTimetable, d, h, course, nodes);
+                
+                if (!hasConflict) {
+                  groupTimetable[d][h] = { subject: course.code, faculty: course.faculties[0], isLab: true, courseType: course.type };
+                  groupTimetable[d][h + 1] = { subject: course.code, faculty: course.faculties[0], isLab: true, courseType: course.type };
+                  placed = true;
+                }
+              }
+              attempts++;
+            }
+          }
+        }
+      });
+      
+      // Place theory hours for this group
+      groupCourses.forEach(course => {
+        for (let i = 0; i < course.theoryHours; i++) {
+          let placed = false;
+          let attempts = 0;
+          
+          while (!placed && attempts < 100) {
+            const d = Math.floor(Math.random() * DAYS);
+            const h = Math.floor(Math.random() * HOURS);
+            
+            if (!groupTimetable[d][h].subject) {
+              const hasConflict = checkTimeConflict(groupTimetable, d, h, course, nodes);
+              
+              if (!hasConflict) {
+                groupTimetable[d][h] = { subject: course.code, faculty: course.faculties[0], isLab: false, courseType: course.type };
+                placed = true;
+              }
+            }
+            attempts++;
+          }
+        }
+      });
+    });
+  }
+  
+  return { div1, div2, steps, groupTimetables: uniqueGroups.length > 2 ? groupTimetables : undefined };
 }
 
 // Generate combined sports schedule
@@ -722,7 +813,7 @@ function checkTimeConflict(timetable: Timetable, day: number, hour: number, cour
  * 
  * Best for: Quick scheduling when speed > optimality
  */
-function greedySchedule(courses: Course[], maxColors: number): { div1: Timetable, div2: Timetable, steps: AlgorithmStep[] } {
+function greedySchedule(courses: Course[], maxColors: number): { div1: Timetable, div2: Timetable, steps: AlgorithmStep[], groupTimetables?: { [groupName: string]: Timetable } } {
   return welshPowellSchedule(courses, maxColors);
 }
 
@@ -758,7 +849,7 @@ function greedySchedule(courses: Course[], maxColors: number): { div1: Timetable
  * 
  * Best for: Small datasets where optimal solution is critical
  */
-function backtrackingSchedule(courses: Course[], maxColors: number): { div1: Timetable, div2: Timetable, steps: AlgorithmStep[] } {
+function backtrackingSchedule(courses: Course[], maxColors: number): { div1: Timetable, div2: Timetable, steps: AlgorithmStep[], groupTimetables?: { [groupName: string]: Timetable } } {
   return welshPowellSchedule(courses, maxColors);
 }
 
@@ -797,7 +888,7 @@ function backtrackingSchedule(courses: Course[], maxColors: number): { div1: Tim
  * 
  * Best for: Medium to large datasets requiring good quality solutions
  */
-function dsaturSchedule(courses: Course[], maxColors: number): { div1: Timetable, div2: Timetable, steps: AlgorithmStep[] } {
+function dsaturSchedule(courses: Course[], maxColors: number): { div1: Timetable, div2: Timetable, steps: AlgorithmStep[], groupTimetables?: { [groupName: string]: Timetable } } {
   return welshPowellSchedule(courses, maxColors);
 }
 

@@ -2,8 +2,85 @@ import { Course } from './scheduler';
 
 export const demoCourses: Course[] = [
   {
+    code: 'FCN101',
+    name: 'FCN',
+    priority: 1,
+    theoryHours: 4,
+    labHours: 2,
+    labType: 1,
+    faculties: ['Ritesh sir', 'Parm sir', 'Muskan mam'],
+    studentGroups: ['CE1', 'CE2'],
+    venue: '623, 622',
+    type: 'academic'
+  },
+  {
     code: 'DM',
     name: 'Discrete Mathematics',
+    priority: 2,
+    theoryHours: 4,
+    labHours: 0,
+    labType: 0,
+    faculties: ['Nirumam'],
+    studentGroups: ['CE1', 'CE2'],
+    venue: '623, 622',
+    type: 'academic'
+  },
+  {
+    code: 'DSA102',
+    name: 'FDSA',
+    priority: 1,
+    theoryHours: 4,
+    labHours: 2,
+    labType: 1,
+    faculties: ['Nikita Mam', 'Sarita mam'],
+    studentGroups: ['CE1', 'CE2'],
+    venue: '623, 622',
+    type: 'academic'
+  },
+  {
+    code: 'HSUV',
+    name: 'Creativity',
+    priority: 3,
+    theoryHours: 2,
+    labHours: 0,
+    labType: 0,
+    faculties: ['Punit patel', 'Subhramanian'],
+    studentGroups: ['CE1', 'CE2'],
+    venue: '623, 622',
+    type: 'academic'
+  },
+  {
+    code: 'WDF205',
+    name: 'WDF',
+    priority: 1,
+    theoryHours: 4,
+    labHours: 4,
+    labType: 1,
+    faculties: ['Martin sir', 'Deep sir'],
+    studentGroups: ['CE1', 'CE2'],
+    venue: '623, 622',
+    type: 'academic'
+  },
+  {
+    code: 'OOP',
+    name: 'Java',
+    priority: 2,
+    theoryHours: 2,
+    labHours: 2,
+    labType: 1,
+    faculties: ['Mrugrendra sir', 'Ronak sir'],
+    studentGroups: ['CE1', 'CE2'],
+    venue: '623, 622',
+    type: 'academic'
+  }
+];
+
+// Updated with actual faculty names for CE1/CE2 courses
+// Legacy demo courses for reference
+export const legacyDemoCourses: Course[] = [
+  {
+    code: 'DM-OLD',
+    name: 'Discrete Mathematics (Legacy)',
     priority: 1,
     theoryHours: 4,
     labHours: 2,
@@ -14,8 +91,8 @@ export const demoCourses: Course[] = [
     type: 'academic'
   },
   {
-    code: 'DS',
-    name: 'Data Structures',
+    code: 'DS-OLD',
+    name: 'Data Structures (Legacy)',
     priority: 2,
     theoryHours: 3,
     labHours: 2,
@@ -26,8 +103,8 @@ export const demoCourses: Course[] = [
     type: 'academic'
   },
   {
-    code: 'DB',
-    name: 'Database Systems',
+    code: 'DB-OLD',
+    name: 'Database Systems (Legacy)',
     priority: 3,
     theoryHours: 3,
     labHours: 4,
@@ -38,8 +115,8 @@ export const demoCourses: Course[] = [
     type: 'academic'
   },
   {
-    code: 'NW',
-    name: 'Computer Networks',
+    code: 'NW-OLD',
+    name: 'Computer Networks (Legacy)',
     priority: 1,
     theoryHours: 2,
     labHours: 2,
@@ -50,8 +127,8 @@ export const demoCourses: Course[] = [
     type: 'academic'
   },
   {
-    code: 'SE',
-    name: 'Software Engineering',
+    code: 'SE-OLD',
+    name: 'Software Engineering (Legacy)',
     priority: 2,
     theoryHours: 4,
     labHours: 0,

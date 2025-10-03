@@ -37,7 +37,7 @@ const AboutUs = () => {
                 <div className="w-24 h-24 bg-gradient-to-br from-primary to-accent rounded-full flex items-center justify-center mb-6 mx-auto">
                   <User className="w-12 h-12 text-white" />
                 </div>
-                <h3 className="text-2xl font-bold mb-2">Ansh Darji</h3>
+                <h3 className="text-2xl font-bold mb-2">Anshkumar Darji</h3>
                 <p className="text-primary font-semibold mb-3">Frontend Developer</p>
                 <p className="text-muted-foreground mb-4">
                   Specialized in React development and UI/UX design. Responsible for creating the interactive 
@@ -55,11 +55,11 @@ const AboutUs = () => {
                 <div className="w-24 h-24 bg-gradient-to-br from-accent to-primary rounded-full flex items-center justify-center mb-6 mx-auto">
                   <User className="w-12 h-12 text-white" />
                 </div>
-                <h3 className="text-2xl font-bold mb-2">Team Member 2</h3>
-                <p className="text-accent font-semibold mb-3">Algorithm Developer</p>
+                <h3 className="text-2xl font-bold mb-2">Jashkumar Baldha</h3>
+                <p className="text-accent font-semibold mb-3">Logic Developer</p>
                 <p className="text-muted-foreground mb-4">
-                  Expert in graph theory and discrete mathematics. Implemented the Welsh-Powell algorithm 
-                  and conflict detection systems. Loves solving complex mathematical problems.
+                  Expert in system logic and backend architecture. Implemented core scheduling logic 
+                  and data management systems. Specializes in building robust and scalable solutions.
                 </p>
                 <div className="flex justify-center gap-3">
                   <Github className="w-5 h-5 text-muted-foreground hover:text-accent cursor-pointer transition-colors" />
@@ -73,8 +73,8 @@ const AboutUs = () => {
                 <div className="w-24 h-24 bg-gradient-to-br from-primary via-accent to-primary rounded-full flex items-center justify-center mb-6 mx-auto">
                   <User className="w-12 h-12 text-white" />
                 </div>
-                <h3 className="text-2xl font-bold mb-2">Team Member 3</h3>
-                <p className="text-primary font-semibold mb-3">Backend Developer</p>
+                <h3 className="text-2xl font-bold mb-2">Kalp Kapatel</h3>
+                <p className="text-primary font-semibold mb-3">Logic Developer</p>
                 <p className="text-muted-foreground mb-4">
                   Focused on data structures and scheduling logic. Built the core scheduling engine 
                   and optimization algorithms. Ensures system performance and reliability.
@@ -91,11 +91,11 @@ const AboutUs = () => {
                 <div className="w-24 h-24 bg-gradient-to-br from-accent via-primary to-accent rounded-full flex items-center justify-center mb-6 mx-auto">
                   <User className="w-12 h-12 text-white" />
                 </div>
-                <h3 className="text-2xl font-bold mb-2">Team Member 4</h3>
-                <p className="text-accent font-semibold mb-3">Data Analyst</p>
+                <h3 className="text-2xl font-bold mb-2">Krrish Bhardwaj</h3>
+                <p className="text-accent font-semibold mb-3">Algorithm & Research</p>
                 <p className="text-muted-foreground mb-4">
-                  Specialized in set theory applications and mathematical modeling. Designed the 
-                  conflict analysis and set operations visualization. Expert in data-driven insights.
+                  Specialized in algorithm design and mathematical research. Designed the 
+                  Welsh-Powell implementation and conflict analysis systems. Expert in graph theory applications.
                 </p>
                 <div className="flex justify-center gap-3">
                   <Github className="w-5 h-5 text-muted-foreground hover:text-accent cursor-pointer transition-colors" />
@@ -109,11 +109,11 @@ const AboutUs = () => {
                 <div className="w-24 h-24 bg-gradient-to-br from-primary to-accent rounded-full flex items-center justify-center mb-6 mx-auto">
                   <User className="w-12 h-12 text-white" />
                 </div>
-                <h3 className="text-2xl font-bold mb-2">Team Member 5</h3>
-                <p className="text-primary font-semibold mb-3">Project Manager</p>
+                <h3 className="text-2xl font-bold mb-2">Vedant Bhatt</h3>
+                <p className="text-primary font-semibold mb-3">Algorithm & Research</p>
                 <p className="text-muted-foreground mb-4">
-                  Coordinated the development process and ensured project quality. Responsible for 
-                  testing, documentation, and user experience optimization. Keeps the team organized and motivated.
+                  Focused on algorithm optimization and research methodologies. Responsible for 
+                  performance analysis, mathematical modeling, and algorithm comparison studies.
                 </p>
                 <div className="flex justify-center gap-3">
                   <Github className="w-5 h-5 text-muted-foreground hover:text-primary cursor-pointer transition-colors" />

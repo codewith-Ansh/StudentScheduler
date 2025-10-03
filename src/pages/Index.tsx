@@ -220,7 +220,7 @@ const Index = () => {
                       />
                     </>
                   ) : (
-                    // Academic courses - show both divisions
+                    // Academic courses - show group-specific timetables if available, otherwise divisions
                     <>
                       <div className="mb-4">
                         <Label>View Algorithm Results:</Label>
@@ -236,16 +236,32 @@ const Index = () => {
                           </SelectContent>
                         </Select>
                       </div>
-                      <TimetableView 
-                        division={`Division 1 - ${scheduleResult.algorithms[selectedAlgorithm as keyof typeof scheduleResult.algorithms].algorithmName}`} 
-                        timetable={scheduleResult.algorithms[selectedAlgorithm as keyof typeof scheduleResult.algorithms].div1} 
-                        scheduleType={scheduleType} 
-                      />
-                      <TimetableView 
-                        division={`Division 2 - ${scheduleResult.algorithms[selectedAlgorithm as keyof typeof scheduleResult.algorithms].algorithmName}`} 
-                        timetable={scheduleResult.algorithms[selectedAlgorithm as keyof typeof scheduleResult.algorithms].div2} 
-                        scheduleType={scheduleType} 
-                      />
+                      
+                      {scheduleResult.algorithms[selectedAlgorithm as keyof typeof scheduleResult.algorithms].groupTimetables ? (
+                        // Show individual group timetables
+                        Object.entries(scheduleResult.algorithms[selectedAlgorithm as keyof typeof scheduleResult.algorithms].groupTimetables!).map(([groupName, timetable]) => (
+                          <TimetableView 
+                            key={groupName}
+                            division={`${groupName} - ${scheduleResult.algorithms[selectedAlgorithm as keyof typeof scheduleResult.algorithms].algorithmName}`} 
+                            timetable={timetable} 
+                            scheduleType={scheduleType} 
+                          />
+                        ))
+                      ) : (
+                        // Show traditional Division 1 and 2
+                        <>
+                          <TimetableView 
+                            division={`Division 1 - ${scheduleResult.algorithms[selectedAlgorithm as keyof typeof scheduleResult.algorithms].algorithmName}`} 
+                            timetable={scheduleResult.algorithms[selectedAlgorithm as keyof typeof scheduleResult.algorithms].div1} 
+                            scheduleType={scheduleType} 
+                          />
+                          <TimetableView 
+                            division={`Division 2 - ${scheduleResult.algorithms[selectedAlgorithm as keyof typeof scheduleResult.algorithms].algorithmName}`} 
+                            timetable={scheduleResult.algorithms[selectedAlgorithm as keyof typeof scheduleResult.algorithms].div2} 
+                            scheduleType={scheduleType} 
+                          />
+                        </>
+                      )}
                     </>
                   )}
                 </TabsContent>
