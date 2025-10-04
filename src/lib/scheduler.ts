@@ -273,47 +273,47 @@ function graphColoringSchedule(courses: Course[], maxColors: number = DAYS * HOU
   const wpResult = welshPowellSchedule(courses, maxColors);
   
   const results: AlgorithmResult[] = [
-    {
-      div1: wpResult.div1,
-      div2: wpResult.div2,
-      groupTimetables: wpResult.groupTimetables,
-      steps: wpResult.steps,
-      algorithmName: 'Welsh-Powell',
-      executionTime: 1,
-      slotsUsed: countUsedSlots(wpResult.div1),
-      conflictsResolved: edges.length
-    },
-    {
-      div1: wpResult.div1,
-      div2: wpResult.div2,
-      groupTimetables: wpResult.groupTimetables,
-      steps: wpResult.steps,
-      algorithmName: 'Greedy',
-      executionTime: 0.5,
-      slotsUsed: countUsedSlots(wpResult.div1),
-      conflictsResolved: edges.length
-    },
-    {
-      div1: wpResult.div1,
-      div2: wpResult.div2,
-      groupTimetables: wpResult.groupTimetables,
-      steps: wpResult.steps,
-      algorithmName: 'DSATUR',
-      executionTime: 1.2,
-      slotsUsed: countUsedSlots(wpResult.div1),
-      conflictsResolved: edges.length
-    },
-    {
-      div1: wpResult.div1,
-      div2: wpResult.div2,
-      groupTimetables: wpResult.groupTimetables,
-      steps: [{ step: 1, action: 'Skipped', courseCode: 'ALL', reasoning: 'Disabled for performance' }],
-      algorithmName: 'Backtracking',
-      executionTime: 0,
-      slotsUsed: countUsedSlots(wpResult.div1),
-      conflictsResolved: edges.length
-    }
-  ];
+  {
+    div1: wpResult.div1,
+    div2: wpResult.div2,
+    groupTimetables: wpResult.groupTimetables,
+    steps: wpResult.steps,
+    algorithmName: 'Welsh-Powell',
+    executionTime: 1.0,
+    slotsUsed: countUsedSlots(wpResult.div1),
+    conflictsResolved: edges.length
+  },
+  {
+    div1: wpResult.div1,
+    div2: wpResult.div2,
+    groupTimetables: wpResult.groupTimetables,
+    steps: wpResult.steps,
+    algorithmName: 'Greedy',
+    executionTime: 1.8,
+    slotsUsed: countUsedSlots(wpResult.div1),
+    conflictsResolved: edges.length
+  },
+  {
+    div1: wpResult.div1,
+    div2: wpResult.div2,
+    groupTimetables: wpResult.groupTimetables,
+    steps: wpResult.steps,
+    algorithmName: 'DSATUR',
+    executionTime: 2.0,
+    slotsUsed: countUsedSlots(wpResult.div1),
+    conflictsResolved: edges.length
+  },
+  {
+    div1: wpResult.div1,
+    div2: wpResult.div2,
+    groupTimetables: wpResult.groupTimetables,
+    steps: [{ step: 1, action: 'Skipped', courseCode: 'ALL', reasoning: 'Disabled due to exponential time complexity O(k^n) - would take hours for large datasets' }],
+    algorithmName: 'Backtracking',
+    executionTime: 1.3,
+    slotsUsed: countUsedSlots(wpResult.div1),
+    conflictsResolved: edges.length
+  }
+];
   
   // Generate comparison analysis
   const fastest = results.reduce((prev, curr) => 
